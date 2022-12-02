@@ -1,0 +1,72 @@
+name: "data-collection-action"
+description: "Launchable action for data collection"
+author: "launchbleinc"
+inputs:
+  python_version:
+    required: false
+    description: "Python version >= 3.5 <=3.10. Default 3.10"
+    default: "3.10"
+  build_name:
+    required: false
+    description: "The build name. Default GitHub SHA."
+    default: $GITHUB_SHA
+  source:
+    required: false
+    description: "Path to a local Git repository/workspace. Default current directory."
+    default: "."
+  max_days:
+    required: false
+    description: "The maximum number of days to collect commits retroactively. Default 30."
+    default: "30"
+  no_submodules:
+    required: false
+    description: "Stop collecting build information from Git Submodules. Default False."
+    default: "false"
+  test_runner:
+    required: true
+    description: "test runner name"
+  report:
+    required: true
+    description: "The test report file path. Defaul ..."
+    default: "."
+runs:
+  using: "composite"
+  steps:
+    - name: Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ inputs.python_version }}
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+    - id: install
+      shell: bash
+      run: pip install launchable
+    - id: verify
+      shell: bash
+      run: |
+        launchable verify
+    - id: record_build
+      shell: bash
+      run: |
+        if [ "${{ inputs.no_submodules }}" == 'false' ]; then
+          launchable record build \
+            --name ${{ inputs.build_name }} \
+            --max-days ${{ inputs.max_days }} \
+            --source ${{ inputs.source }}
+        else
+          launchable record build \
+            --name ${{ inputs.build_name }} \
+            --max-days ${{ inputs.max_days }} \
+            --source ${{ inputs.source }} \
+            --no-submodules
+        fi
+    - id: record_test
+      shell: bash
+      run: |
+        launchable record tests \
+          --build ${{ inputs.build_name }} \
+          ${{ inputs.test_runner }} \
+          ${{ inputs.report }} \
+          --allow-test-before-build
