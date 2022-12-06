@@ -1,0 +1,39 @@
+name: go-test example
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  LAUNCHABLE_TOKEN: ${{ secrets.LAUNCHABLE_GO_EXAMPLE_TOKEN }}
+  LAUNCHABLE_DEBUG: 1
+  LAUNCHABLE_REPORT_ERROR: 1
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: go
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+      - name: Clone go-test example
+        run: git clone https://github.com/launchableinc/examples.git
+      - name: Install dependencies
+        run: go install github.com/jstemmer/go-junit-report@latest
+      - name: test
+        run: cd examples/go && go test -v ./... 2>&1 | go-junit-report -set-exit-code > report.xml
+      - name: Record
+        uses: ./
+        with:
+          source: ./examples/go/
+          build_name: $GITHUB_RUN_ID
+          test_runner: go-test
+          report: ./examples/go/
+        if: always()
