@@ -16,12 +16,13 @@ on:
     branches: [main]
 
 env:
-  LAUNCHABLE_TOKEN: ${{ secrets.LAUNCHABLE_TOKEN }}
   LAUNCHABLE_DEBUG: 1
   LAUNCHABLE_REPORT_ERROR: 1
 
 jobs:
   tests:
+    env:
+      LAUNCHABLE_TOKEN: ${{ secrets.LAUNCHABLE_TOKEN }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
