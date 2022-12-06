@@ -32,7 +32,6 @@ jobs:
         with:
           source: .
           build_name: $GITHUB_RUN_ID
-          no_submodules: "true"
           test_runner: go-test # change this to your test runner
           report: .
         if: always()
