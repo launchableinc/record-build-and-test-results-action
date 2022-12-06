@@ -1,8 +1,8 @@
-# Launchable data collection action
+# Launchable record　build　and　test　results　action
 
 [Launchable](https://www.launchableinc.com/) is a software development intelligence platform currently focused on continuous integration (CI). Using data from your CI runs, Launchable provides various features to speed up your testing workflow so you can ship high quality software faster.
 
-Launchable data collection action enables you to integrate Launchable into your CI in simple way with less change. This action installs [launchableinc/cli](https://github.com/launchableinc/cli) and runs `launchable record build` and `launchable record test` to send data to Launchable so that the test results will be analyzed in [Launchable](https://www.launchableinc.com/) to improve your developer productivity. You still need to add [subset request command](https://docs.launchableinc.com/resources/cli-reference#subset) to retrieve test subset.
+Launchable `record-build-and-test-results-action` enables you to integrate Launchable into your CI in simple way with less change. This action installs [launchableinc/cli](https://github.com/launchableinc/cli) and runs `launchable record build` and `launchable record test` to send data to Launchable so that the test results will be analyzed in [Launchable](https://www.launchableinc.com/) to improve your developer productivity. You still need to add [subset request command](https://docs.launchableinc.com/resources/cli-reference#subset) to retrieve test subset.
 
 # Usage
 
@@ -29,7 +29,7 @@ jobs:
       - name: Test
         run: <YOUR TEST COMMAND HERE>
       - name: Record
-        uses: launchableinc/data-collection-action@v1
+        uses: launchableinc/record-build-and-test-results-action@v1
         with:
           build_name: $GITHUB_RUN_ID
           test_runner: <YOUR TEST RUNNER HERE>

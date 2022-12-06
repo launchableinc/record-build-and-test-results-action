@@ -1,6 +1,6 @@
 name: "record-build-and-test-results-action"
 author: "launchbleinc"
-description: "Launchable action for data collection"
+description: "Launchable action for recording build and test results"
 inputs:
   python_version:
     required: false

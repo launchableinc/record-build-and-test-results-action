@@ -27,7 +27,7 @@ jobs:
         run: go install github.com/jstemmer/go-junit-report@latest
       - name: test
         run: cd examples/go && go test -v ./... 2>&1 | go-junit-report -set-exit-code > report.xml
-      - name: Record
+      - name: Record build and test results
         uses: ./
         with:
           source_path: ./examples/go/
