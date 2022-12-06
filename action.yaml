@@ -1,6 +1,6 @@
-name: "data-collection-action"
-description: "Launchable action for data collection"
+name: "record-build-and-test-results-action"
 author: "launchbleinc"
+description: "Launchable action for data collection"
 inputs:
   python_version:
     required: false
@@ -10,7 +10,7 @@ inputs:
     required: false
     description: "The build name. Default GitHub SHA."
     default: $GITHUB_SHA
-  source:
+  source_path:
     required: false
     description: "Path to a local Git repository/workspace. Default current directory."
     default: "."
@@ -25,9 +25,9 @@ inputs:
   test_runner:
     required: true
     description: "test runner name"
-  report:
+  report_path:
     required: true
-    description: "The test report file path. Defaul ..."
+    description: "The test report file path. Default ..."
     default: "."
 runs:
   using: "composite"
@@ -54,12 +54,12 @@ runs:
           launchable record build \
             --name ${{ inputs.build_name }} \
             --max-days ${{ inputs.max_days }} \
-            --source ${{ inputs.source }}
+            --source src=${{ inputs.source_path }}
         else
           launchable record build \
             --name ${{ inputs.build_name }} \
             --max-days ${{ inputs.max_days }} \
-            --source ${{ inputs.source }} \
+            --source src=${{ inputs.source_path }} \
             --no-submodules
         fi
     - id: record_test
@@ -69,4 +69,4 @@ runs:
           --build ${{ inputs.build_name }} \
           --allow-test-before-build \
           ${{ inputs.test_runner }} \
-          ${{ inputs.report }}
+          ${{ inputs.report_path }}

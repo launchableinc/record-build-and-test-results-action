@@ -29,8 +29,8 @@ jobs:
       - name: Record
         uses: ./
         with:
-          source: ./examples/go/
+          source_path: ./examples/go/
           build_name: $GITHUB_RUN_ID
           test_runner: go-test
-          report: ./examples/go/
+          report_path: ./examples/go/
         if: always()
