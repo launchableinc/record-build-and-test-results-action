@@ -37,6 +37,10 @@ jobs:
         if: always()
 ```
 
+## Example
+
+Refer [go-test example](./.github/workflows/go-test-example.yaml) for example use of the action.
+
 # Inputs
 
 ### `test_runner`
