@@ -32,7 +32,7 @@ jobs:
         with:
           source: .
           build_name: $GITHUB_RUN_ID
-          test_runner: go-test # change this to your test runner
+          test_runner: <YOUR TEST RUNNER HERE>
           report: .
         if: always()
 ```
