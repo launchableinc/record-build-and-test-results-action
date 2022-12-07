@@ -1,4 +1,4 @@
-# Launchable　record　build　and　test　results　action
+# Launchable record build and test results action
 
 [Launchable](https://www.launchableinc.com/) is a software development intelligence platform currently focused on continuous integration (CI). Using data from your CI runs, Launchable provides various features to speed up your testing workflow so you can ship high quality software faster.
 
