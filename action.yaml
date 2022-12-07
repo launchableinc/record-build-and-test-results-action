@@ -1,6 +1,9 @@
-name: "record-build-and-test-results-action"
+name: "Record build and test results action"
 author: "launchbleinc"
 description: "Launchable action for recording build and test results"
+branding:
+  icon: 'circle'
+  color: 'gray-dark'
 inputs:
   build_name:
     required: false
