@@ -29,7 +29,7 @@ jobs:
       - name: Test
         run: <YOUR TEST COMMAND HERE>
       - name: Record
-        uses: launchableinc/record-build-and-test-results-action@v1
+        uses: launchableinc/record-build-and-test-results-action@v1.0.0
         with:
           build_name: $GITHUB_RUN_ID
           report_path: .
