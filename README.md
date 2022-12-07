@@ -32,8 +32,8 @@ jobs:
         uses: launchableinc/record-build-and-test-results-action@v1
         with:
           build_name: $GITHUB_RUN_ID
-          test_runner: <YOUR TEST RUNNER HERE>
           report_path: .
+          test_runner: <YOUR TEST RUNNER HERE>
         if: always()
 ```
 

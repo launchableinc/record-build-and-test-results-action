@@ -30,8 +30,8 @@ jobs:
       - name: Record build and test results
         uses: ./
         with:
-          source_path: ./examples/go/
           build_name: $GITHUB_RUN_ID
-          test_runner: go-test
           report_path: ./examples/go/
+          test_runner: go-test
+          source_path: ./examples/go/
         if: always()
