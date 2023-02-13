@@ -11,7 +11,7 @@ This action sends test results and Git commit graph changes from your GitHub Act
 # Usage
 
 1. Create an API key on the Settings page of your Launchable workspace.
-2. Create an [ecrypted secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository) called `LAUNCHABLE_TOKEN` with your Launchable API key as its value.
+2. Create an [encrypted secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository) called `LAUNCHABLE_TOKEN` with your Launchable API key as its value.
 3. Add this action to your workflow. Add it after you run tests, like in the example below.
 4. Add the `with:`, `if:`, and `env:` sections as shown below.
 5. Set your `test_runner` and `report_path` values per [this doc](https://www.launchableinc.com/docs/sending-data-to-launchable/using-ci-integrations/using-the-launchable-github-action/#add-the-launchable-action).
