@@ -87,6 +87,10 @@ The maximum number of days to collect commits retroactively. Default `30`.
 
 Flag to stop collecting build information from Git Submodules. Default `false`, which means the submodules are collected.
 
+### `no_build`
+
+Flag to record test session without recording build. Default `false`, which means the build is recorded.
+
 ### `python_version`
 
 Python version for the Launchable CLI to use. Default is `3.10`. Change this if your workflow requires a specific Python version.

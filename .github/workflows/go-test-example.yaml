@@ -28,10 +28,22 @@ jobs:
       - name: test
         run: cd examples/go && go test -v ./... 2>&1 | go-junit-report -set-exit-code > report.xml
       - name: Record build and test results
-        uses: launchableinc/record-build-and-test-results-action@v1.0.0
+        uses: ./
+        # uses: launchableinc/record-build-and-test-results-action@v1.0.0
         with:
           build_name: $GITHUB_RUN_ID
           report_path: ./examples/go/
+          test_runner: go-test
+          source_path: ./examples/go/
+        if: always()
+      - name: remove .launchable
+        run: rm -f .launchable
+      - name: Record test results without build
+        uses: ./
+        # uses: launchableinc/record-build-and-test-results-action@v1.0.0
+        with:
+          report_path: ./examples/go/
+          no_build: "true"
           test_runner: go-test
           source_path: ./examples/go/
         if: always()
