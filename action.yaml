@@ -49,16 +49,16 @@ runs:
         java-version: 1.8
     - id: install
       shell: bash
-      run: pip install "launchable>=1.56.1"
+      run: pip install "launchable>=1.59.0"
     - id: verify
       shell: bash
       run: |
         launchable verify
     - id: record_build
       shell: bash
-      if: !inputs.no_build
+      if: inputs.no_build != 'true'
       run: |
-        if [ "${{ inputs.no_submodules }}" == 'false' ]; then
+        if [ "${{ inputs.no_submodules }}" == "false" ]; then
           launchable record build \
             --name ${{ inputs.build_name }} \
             --max-days ${{ inputs.max_days }} \
@@ -73,7 +73,7 @@ runs:
     - id: record_test
       shell: bash
       run: |
-        if [ "${{ inputs.no_build }}" == 'false' ]; then
+        if [ "${{ inputs.no_build }}" == "false" ]; then
           launchable record tests \
             --build ${{ inputs.build_name }} \
             --allow-test-before-build \
