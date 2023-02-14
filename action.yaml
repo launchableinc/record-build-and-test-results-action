@@ -73,17 +73,16 @@ runs:
     - id: record_test
       shell: bash
       run: |
-        if [ "${{ inputs.no_build }}" == "false" ]; then
+        if [ "${{ inputs.no_build }}" == "true" ]; then
           launchable record tests \
-            --build ${{ inputs.build_name }} \
             --allow-test-before-build \
+            --no-build \
             ${{ inputs.test_runner }} \
             ${{ inputs.report_path }}
         else
           launchable record tests \
             --build ${{ inputs.build_name }} \
             --allow-test-before-build \
-            --no-build \
             ${{ inputs.test_runner }} \
             ${{ inputs.report_path }}
         fi
