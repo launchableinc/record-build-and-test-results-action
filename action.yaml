@@ -17,6 +17,10 @@ inputs:
     required: false
     description: "Stop collecting build information from Git Submodules. Default False."
     default: "false"
+  no_build:
+    required: false
+    description: "Send test session without recording build. Default False."
+    default: "false"
   python_version:
     required: false
     description: "Python version >= 3.5 <=3.10. Default 3.10"
@@ -52,6 +56,7 @@ runs:
         launchable verify
     - id: record_build
       shell: bash
+      if: !inputs.no_build
       run: |
         if [ "${{ inputs.no_submodules }}" == 'false' ]; then
           launchable record build \
@@ -68,8 +73,17 @@ runs:
     - id: record_test
       shell: bash
       run: |
-        launchable record tests \
-          --build ${{ inputs.build_name }} \
-          --allow-test-before-build \
-          ${{ inputs.test_runner }} \
-          ${{ inputs.report_path }}
+        if [ "${{ inputs.no_build }}" == 'false' ]; then
+          launchable record tests \
+            --build ${{ inputs.build_name }} \
+            --allow-test-before-build \
+            ${{ inputs.test_runner }} \
+            ${{ inputs.report_path }}
+        else
+          launchable record tests \
+            --build ${{ inputs.build_name }} \
+            --allow-test-before-build \
+            --no-build \
+            ${{ inputs.test_runner }} \
+            ${{ inputs.report_path }}
+        fi

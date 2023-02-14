@@ -32,6 +32,7 @@ jobs:
         with:
           build_name: $GITHUB_RUN_ID
           report_path: ./examples/go/
+          no_build: "true"
           test_runner: go-test
           source_path: ./examples/go/
         if: always()
