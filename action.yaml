@@ -1,5 +1,5 @@
 name: "Record build and test results action"
-author: "launchbleinc"
+author: "launchableinc"
 description: "Launchable action for recording build and test results"
 branding:
   icon: 'circle'
