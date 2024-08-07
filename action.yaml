@@ -58,18 +58,16 @@ runs:
       shell: bash
       if: inputs.no_build != 'true'
       run: |
-        if [ "${{ inputs.no_submodules }}" == "false" ]; then
-          launchable record build \
-            --name ${{ inputs.build_name }} \
-            --max-days ${{ inputs.max_days }} \
-            --source src=${{ inputs.source_path }}
-        else
-          launchable record build \
-            --name ${{ inputs.build_name }} \
-            --max-days ${{ inputs.max_days }} \
-            --source src=${{ inputs.source_path }} \
-            --no-submodules
+        options=(
+          "--name" "${{ inputs.build_name }}"
+          "--max-days" "${{ inputs.max_days }}"
+          "--source" "src=${{ inputs.source_path }}"
+        )
+
+        if [ "${{ inputs.no_submodules }}" == "true" ]; then
+          options+=("--no-submodules")
         fi
+        launchable record build "${options[@]}"
     - id: record_test
       shell: bash
       run: |
