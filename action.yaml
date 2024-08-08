@@ -36,6 +36,10 @@ inputs:
   test_runner:
     required: true
     description: "test runner name"
+  test_session_name:
+    required: false
+    description: "The test session name for `--session-name` option of record session command"
+    default: ""
 runs:
   using: "composite"
   steps:
@@ -67,7 +71,18 @@ runs:
         if [ "${{ inputs.no_submodules }}" == "true" ]; then
           options+=("--no-submodules")
         fi
+
         launchable record build "${options[@]}"
+    - id: record_session
+      shell: bash
+      run: |
+        options=(
+          "--build" "${{ inputs.build_name }}"
+        )
+        if [ "${{ inputs.test_session_name }}" ]; then
+          options+=("--session-name" "${{ inputs.test_session_name }}")
+        fi
+        launchable record session "${options[@]}"
     - id: record_test
       shell: bash
       run: |
