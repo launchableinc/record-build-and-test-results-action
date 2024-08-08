@@ -74,6 +74,7 @@ runs:
 
         launchable record build "${options[@]}"
     - id: record_session
+      if: inputs.no_build != 'true'
       shell: bash
       run: |
         options=(
@@ -91,7 +92,6 @@ runs:
         )
 
         if [ "${{ inputs.no_build }}" == "true" ]; then
-          rm -f .launchable
           options+=("--no-build")
         fi
 
