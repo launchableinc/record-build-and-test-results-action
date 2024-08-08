@@ -71,16 +71,18 @@ runs:
     - id: record_test
       shell: bash
       run: |
+        options=(
+          "--allow-test-before-build"
+        )
+
         if [ "${{ inputs.no_build }}" == "true" ]; then
-          launchable record tests \
-            --allow-test-before-build \
-            --no-build \
-            ${{ inputs.test_runner }} \
-            ${{ inputs.report_path }}
-        else
-          launchable record tests \
-            --build ${{ inputs.build_name }} \
-            --allow-test-before-build \
-            ${{ inputs.test_runner }} \
-            ${{ inputs.report_path }}
+          rm -f .launchable
+          options+=("--no-build")
         fi
+
+        options+=(
+            ${{ inputs.test_runner }} \
+            ${{ inputs.report_path }}
+        )
+
+        launchable record tests "${options[@]}"
