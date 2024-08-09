@@ -83,7 +83,21 @@ runs:
         if [ "${{ inputs.test_session_name }}" ]; then
           options+=("--session-name" "${{ inputs.test_session_name }}")
         fi
-        launchable record session "${options[@]}"
+
+        # In some case (e.g. parallel execution), wants to use the same ses sion name.
+        # So, allow the case that the session name is already used.
+        set +e
+        output=$(launchable record session "${options[@]}" 2>&1)
+        exit_code=$?
+
+        if [[ $output == *"is already used"* ]]; then
+          echo "INFO: test_session_name: '${{ inputs.test_session_name }}' of build: '${{ inputs.build_name }}' is already registered"
+          exit_code=0
+        else
+          echo $output
+        fi
+
+        exit $exit_code
     - id: record_test
       shell: bash
       run: |
@@ -97,6 +111,13 @@ runs:
           rm -f .launchable
 
           options+=("--no-build")
+        fi
+
+        if [ "${{ inputs.test_session_name }}" ]; then
+          options+=(
+            "--build" "${{ inputs.build_name }}"
+            "--session-name" "${{ inputs.test_session_name }}"
+          )
         fi
 
         options+=(
