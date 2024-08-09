@@ -92,6 +92,10 @@ runs:
         )
 
         if [ "${{ inputs.no_build }}" == "true" ]; then
+          # If this action is called multiple times in a workflow, there is a possibility that .launchable file is already created.
+          # So, try to remove it to avoid the conflict, just in case.
+          rm -f .launchable
+
           options+=("--no-build")
         fi
 
