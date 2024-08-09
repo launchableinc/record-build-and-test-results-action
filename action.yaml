@@ -38,7 +38,7 @@ inputs:
     description: "test runner name"
   test_session_name:
     required: false
-    description: "The test session name for `--session-name` option of record session command"
+    description: "The test session name for `--session-name` option of record session command. test-session name value This value needs to be globally unique"
     default: ""
   flavors:
     required: false
