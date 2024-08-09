@@ -144,8 +144,8 @@ runs:
         fi
 
         options+=(
-            ${{ inputs.test_runner }} \
-            ${{ inputs.report_path }}
+            "${{ inputs.test_runner }}"
+            "${{ inputs.report_path }}"
         )
 
         launchable record tests "${options[@]}"
