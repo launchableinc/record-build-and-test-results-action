@@ -40,6 +40,10 @@ inputs:
     required: false
     description: "The test session name for `--session-name` option of record session command"
     default: ""
+  flavors:
+    required: false
+    description: "The flavors for `--flavor` option of record session command"
+    default: ""
 runs:
   using: "composite"
   steps:
@@ -80,6 +84,16 @@ runs:
         options=(
           "--build" "${{ inputs.build_name }}"
         )
+
+        # Set up flavors options
+        if [ -n "${{ inputs.flavors }}" ]; then
+          IFS=', ' read -r -a flavors <<< "${{ inputs.flavors }}"
+          for flavor in "${flavors[@]}"; do
+            options+=("--flavor" "$flavor")
+          done
+        fi
+
+        # Set up test session name option
         if [ "${{ inputs.test_session_name }}" ]; then
           options+=("--session-name" "${{ inputs.test_session_name }}")
         fi
@@ -91,7 +105,7 @@ runs:
         exit_code=$?
 
         if [[ $output == *"is already used"* ]]; then
-          echo "INFO: test_session_name: '${{ inputs.test_session_name }}' of build: '${{ inputs.build_name }}' is already registered"
+          echo "INFO: test_session_name: '${{ inputs.test_session_name }}' is already registered. New test session wasn't created."
           exit_code=0
         else
           echo $output
@@ -111,6 +125,14 @@ runs:
           rm -f .launchable
 
           options+=("--no-build")
+
+          # Set up flavors options
+          if [ -n "${{ inputs.flavors }}" ]; then
+            IFS=', ' read -r -a flavors <<< "${{ inputs.flavors }}"
+            for flavor in "${flavors[@]}"; do
+              options+=("--flavor" "$flavor")
+            done
+          fi
         fi
 
         if [ "${{ inputs.test_session_name }}" ]; then
