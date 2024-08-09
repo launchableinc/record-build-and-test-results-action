@@ -36,6 +36,14 @@ inputs:
   test_runner:
     required: true
     description: "test runner name"
+  test_session_name:
+    required: false
+    description: "The test session name for `--session-name` option of record session command. test-session name value This value needs to be globally unique"
+    default: ""
+  flavors:
+    required: false
+    description: "The flavors for `--flavor` option of record session command"
+    default: ""
 runs:
   using: "composite"
   steps:
@@ -58,31 +66,85 @@ runs:
       shell: bash
       if: inputs.no_build != 'true'
       run: |
-        if [ "${{ inputs.no_submodules }}" == "false" ]; then
-          launchable record build \
-            --name ${{ inputs.build_name }} \
-            --max-days ${{ inputs.max_days }} \
-            --source src=${{ inputs.source_path }}
-        else
-          launchable record build \
-            --name ${{ inputs.build_name }} \
-            --max-days ${{ inputs.max_days }} \
-            --source src=${{ inputs.source_path }} \
-            --no-submodules
+        options=(
+          "--name" "${{ inputs.build_name }}"
+          "--max-days" "${{ inputs.max_days }}"
+          "--source" "src=${{ inputs.source_path }}"
+        )
+
+        if [ "${{ inputs.no_submodules }}" == "true" ]; then
+          options+=("--no-submodules")
         fi
+
+        launchable record build "${options[@]}"
+    - id: record_session
+      if: inputs.no_build != 'true'
+      shell: bash
+      run: |
+        options=(
+          "--build" "${{ inputs.build_name }}"
+        )
+
+        # Set up flavors options
+        if [ -n "${{ inputs.flavors }}" ]; then
+          IFS=', ' read -r -a flavors <<< "${{ inputs.flavors }}"
+          for flavor in "${flavors[@]}"; do
+            options+=("--flavor" "$flavor")
+          done
+        fi
+
+        # Set up test session name option
+        if [ "${{ inputs.test_session_name }}" ]; then
+          options+=("--session-name" "${{ inputs.test_session_name }}")
+        fi
+
+        # In some case (e.g. parallel execution), wants to use the same ses sion name.
+        # So, allow the case that the session name is already used.
+        set +e
+        output=$(launchable record session "${options[@]}" 2>&1)
+        exit_code=$?
+
+        if [[ $output == *"is already used"* ]]; then
+          echo "INFO: test_session_name: '${{ inputs.test_session_name }}' is already registered. New test session wasn't created."
+          exit_code=0
+        else
+          echo $output
+        fi
+
+        exit $exit_code
     - id: record_test
       shell: bash
       run: |
+        options=(
+          "--allow-test-before-build"
+        )
+
         if [ "${{ inputs.no_build }}" == "true" ]; then
-          launchable record tests \
-            --allow-test-before-build \
-            --no-build \
-            ${{ inputs.test_runner }} \
-            ${{ inputs.report_path }}
-        else
-          launchable record tests \
-            --build ${{ inputs.build_name }} \
-            --allow-test-before-build \
-            ${{ inputs.test_runner }} \
-            ${{ inputs.report_path }}
+          # If this action is called multiple times in a workflow, there is a possibility that .launchable file is already created.
+          # So, try to remove it to avoid the conflict, just in case.
+          rm -f .launchable
+
+          options+=("--no-build")
+
+          # Set up flavors options
+          if [ -n "${{ inputs.flavors }}" ]; then
+            IFS=', ' read -r -a flavors <<< "${{ inputs.flavors }}"
+            for flavor in "${flavors[@]}"; do
+              options+=("--flavor" "$flavor")
+            done
+          fi
         fi
+
+        if [ "${{ inputs.test_session_name }}" ]; then
+          options+=(
+            "--build" "${{ inputs.build_name }}"
+            "--session-name" "${{ inputs.test_session_name }}"
+          )
+        fi
+
+        options+=(
+            ${{ inputs.test_runner }} \
+            ${{ inputs.report_path }}
+        )
+
+        launchable record tests "${options[@]}"

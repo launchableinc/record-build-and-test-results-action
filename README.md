@@ -36,7 +36,10 @@ env:
 
 jobs:
   tests:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ 'ubuntu-latest', 'windows-latest']
+        version: ['v1', 'v2']
     steps:
       - uses: actions/checkout@v3
         with:
@@ -48,6 +51,7 @@ jobs:
         with:
           report_path: .
           test_runner: <YOUR TEST RUNNER HERE>
+          flavors: 'os=${{ matrix.os }}, version=${{ matrix.version }}'
         if: always()
         env:
           LAUNCHABLE_TOKEN: ${{ secrets.LAUNCHABLE_TOKEN }}
@@ -107,6 +111,14 @@ Flag to record test session without recording build. Default `false`, which mean
 ### `python_version`
 
 Python version for the Launchable CLI to use. Default is `3.10`. Change this if your workflow requires a specific Python version.
+
+### `test_session_name`
+
+Test session name that you can give to the value to [`--test-session-name`](https://www.launchableinc.com/docs/resources/cli-reference/#3500669-record-session) option of the `record session` command. (Optional)
+
+### `flavors`
+
+The value that you can give to the value to ['--flavor](https://www.launchableinc.com/docs/resources/cli-reference/#3500669-record-session) option to the `record session` command. e.g.) `os=linux, version=v1` (Optional)
 
 # License
 Launchable data collection action is licensed under [Apache license](./LICENSE).
