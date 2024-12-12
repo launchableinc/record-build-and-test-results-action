@@ -41,7 +41,7 @@ jobs:
         os: [ 'ubuntu-latest', 'windows-latest']
         version: ['v1', 'v2']
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Test
@@ -63,7 +63,7 @@ If you use `actions/checkout`, set fetch-depth: 0 as shown in the example below.
 
 ```yaml
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 ```
@@ -119,6 +119,10 @@ Test session name that you can give to the value to [`--test-session-name`](http
 ### `flavors`
 
 The value that you can give to the value to ['--flavor](https://www.launchableinc.com/docs/resources/cli-reference/#3500669-record-session) option to the `record session` command. e.g.) `os=linux, version=v1` (Optional)
+
+### `test_suite`
+
+The value that you can give to the value to ['--test-suite](https://www.launchableinc.com/docs/resources/cli-reference/#3500669-record-session) option to the `record session` command. e.g.) `test_suite=e2e` (Optional)
 
 # License
 Launchable data collection action is licensed under [Apache license](./LICENSE).
