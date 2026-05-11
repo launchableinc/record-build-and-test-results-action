@@ -6,44 +6,40 @@ on:
   pull_request:
     branches: [main]
 
-env:
-  LAUNCHABLE_DEBUG: 1
-  LAUNCHABLE_REPORT_ERROR: 1
-
 jobs:
   tests:
     env:
-      LAUNCHABLE_TOKEN: ${{ secrets.LAUNCHABLE_GO_EXAMPLE_TOKEN }}
+      SMART_TESTS_TOKEN: ${{ secrets.LAUNCHABLE_GO_EXAMPLE_TOKEN }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Go
-        uses: actions/setup-go@v2
+      - uses: actions/checkout@v4
         with:
-          go-version: 1.18
+          fetch-depth: 0
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.21"
       - name: Clone go-test example
         run: git clone https://github.com/launchableinc/examples.git
       - name: Install dependencies
-        run: go install github.com/jstemmer/go-junit-report@latest
+        run: go install github.com/jstemmer/go-junit-report/v2@latest
       - name: test
         run: cd examples/go && go test -v ./... 2>&1 | go-junit-report -set-exit-code > report.xml
       - name: Record build and test results
         uses: ./
-        # uses: launchableinc/record-build-and-test-results-action@v1.0.0
         with:
           build_name: $GITHUB_RUN_ID
           report_path: ./examples/go/
           test_runner: go-test
+          test_suite: go-test-example
           source_path: ./examples/go/
         if: always()
-      - name: remove .launchable
-        run: rm -f .launchable
       - name: Record test results without build
         uses: ./
-        # uses: launchableinc/record-build-and-test-results-action@v1.0.0
         with:
           report_path: ./examples/go/
           no_build: "true"
           test_runner: go-test
+          test_suite: go-test-example-no-build
           source_path: ./examples/go/
         if: always()
