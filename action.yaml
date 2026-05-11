@@ -1,6 +1,6 @@
 name: "Record build and test results action"
-author: "launchableinc"
-description: "Launchable action for recording build and test results"
+author: "CloudBees"
+description: "Smart Tests action for recording build and test results"
 branding:
   icon: 'circle'
   color: 'gray-dark'
@@ -23,11 +23,11 @@ inputs:
     default: "false"
   python_version:
     required: false
-    description: "Python version >= 3.5 <=3.10. Default 3.10"
-    default: "3.10"
+    description: "Python version >= 3.13. Default 3.13"
+    default: "3.13"
   report_path:
     required: true
-    description: "The test report file path. Default ..."
+    description: "The test report file path."
     default: "."
   source_path:
     required: false
@@ -36,43 +36,41 @@ inputs:
   test_runner:
     required: true
     description: "test runner name"
-  test_session_name:
-    required: false
-    description: "The test session name for `--session-name` option of record session command. test-session name value This value needs to be globally unique"
-    default: ""
   flavors:
     required: false
     description: "The flavors for `--flavor` option of record session command"
     default: ""
   test_suite:
-    required: false
-    description: "Sets a test suite name for seeing and comparing the different test sessions. e.g. e2e-test, integration-test, etc"
-    default: ""
+    required: true
+    description: "Sets a test suite name for the test session. e.g. e2e-test, integration-test, etc"
 runs:
   using: "composite"
   steps:
     - name: Set up Python
-      uses: actions/setup-python@39cd14951b08e74b54015e9e001cdefcf80e669f # v5.1.1
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ inputs.python_version }}
     - name: Set up JDK 1.8
-      uses: actions/setup-java@6a0805fcefea3d4657a47ac4c165951e33482018 # v4.2.2
+      uses: actions/setup-java@v5
       with:
-        distribution: 'adopt'
+        distribution: 'temurin'
         java-version: 8
+    - id: set_caller
+      shell: bash
+      run: echo "SMART_TESTS_CALLER=record-build-and-test-results-action" >> $GITHUB_ENV
     - id: install
       shell: bash
-      run: pip install "launchable>=1.59.0"
+      run: pip install smart-tests-cli
     - id: verify
       shell: bash
       run: |
-        launchable verify
+        smart-tests verify
     - id: record_build
       shell: bash
       if: inputs.no_build != 'true'
       run: |
         options=(
-          "--name" "${{ inputs.build_name }}"
+          "--build" "${{ inputs.build_name }}"
           "--max-days" "${{ inputs.max_days }}"
           "--source" "src=${{ inputs.source_path }}"
         )
@@ -81,14 +79,19 @@ runs:
           options+=("--no-submodules")
         fi
 
-        launchable record build "${options[@]}"
+        smart-tests record build "${options[@]}"
     - id: record_session
-      if: inputs.no_build != 'true'
       shell: bash
       run: |
         options=(
-          "--build" "${{ inputs.build_name }}"
+          "--test-suite" "${{ inputs.test_suite }}"
         )
+
+        if [ "${{ inputs.no_build }}" == "true" ]; then
+          options+=("--no-build")
+        else
+          options+=("--build" "${{ inputs.build_name }}")
+        fi
 
         # Set up flavors options
         if [ -n "${{ inputs.flavors }}" ]; then
@@ -98,67 +101,12 @@ runs:
           done
         fi
 
-        # Set up test session name option
-        if [ "${{ inputs.test_session_name }}" ]; then
-          options+=("--session-name" "${{ inputs.test_session_name }}")
-        fi
-
-        # Set up test suite option
-        if [ "${{ inputs.test_suite }}" ]; then
-          options+=("--test-suite" "${{ inputs.test_suite }}")
-        fi
-
-        # In some case (e.g. parallel execution), wants to use the same ses sion name.
-        # So, allow the case that the session name is already used.
-        set +e
-        output=$(launchable record session "${options[@]}" 2>&1)
-        exit_code=$?
-
-        if [[ $output == *"is already used"* ]]; then
-          echo "INFO: test_session_name: '${{ inputs.test_session_name }}' is already registered. New test session wasn't created."
-          exit_code=0
-        else
-          echo $output
-        fi
-
-        exit $exit_code
+        session_id=$(smart-tests record session "${options[@]}")
+        echo "session_id=${session_id}" >> $GITHUB_OUTPUT
     - id: record_test
       shell: bash
       run: |
-        options=(
-          "--allow-test-before-build"
-        )
-
-        if [ "${{ inputs.no_build }}" == "true" ]; then
-          # If this action is called multiple times in a workflow, there is a possibility that .launchable file is already created.
-          # So, try to remove it to avoid the conflict, just in case.
-          rm -f .launchable
-
-          options+=("--no-build")
-
-          # Set up flavors options
-          if [ -n "${{ inputs.flavors }}" ]; then
-            IFS=', ' read -r -a flavors <<< "${{ inputs.flavors }}"
-            for flavor in "${flavors[@]}"; do
-              options+=("--flavor" "$flavor")
-            done
-          fi
-        fi
-
-        if [ "${{ inputs.test_session_name }}" ]; then
-          options+=(
-            "--build" "${{ inputs.build_name }}"
-            "--session-name" "${{ inputs.test_session_name }}"
-          )
-        fi
-
-        if [ "${{ inputs.test_suite }}" ]; then
-          options+=("--test-suite" "${{ inputs.test_suite }}")
-        fi
-
-        options+=(
-            "${{ inputs.test_runner }}"
-            "${{ inputs.report_path }}"
-        )
-
-        launchable record tests "${options[@]}"
+        smart-tests record tests \
+          --session "${{ steps.record_session.outputs.session_id }}" \
+          ${{ inputs.test_runner }} \
+          "${{ inputs.report_path }}"
