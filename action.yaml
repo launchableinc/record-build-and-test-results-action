@@ -46,21 +46,19 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Set up Python
-      uses: actions/setup-python@v6
-      with:
-        python-version: ${{ inputs.python_version }}
     - name: Set up JDK 1.8
       uses: actions/setup-java@v5
       with:
         distribution: 'temurin'
         java-version: 8
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
     - id: set_caller
       shell: bash
       run: echo "SMART_TESTS_CALLER=record-build-and-test-results-action" >> $GITHUB_ENV
     - id: install
       shell: bash
-      run: pip install smart-tests-cli
+      run: uv tool install smart-tests-cli --python ${{ inputs.python_version }}
     - id: verify
       shell: bash
       run: |
